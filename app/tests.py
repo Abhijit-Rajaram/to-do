@@ -6,6 +6,10 @@ class SimpleTest(TestCase):
         user = User.objects.create_user(username="ci_user", password="pass")
         self.assertEqual(user.username, "ci_user")
 
+"""
+        **** Just addded to check whether a failing test breaks the integration or not ****
+        
 class FailingTest(TestCase):
     def test_fail_intentionally(self):
         self.assertEqual(1, 0, "This test is supposed to fail and break CI")
+"""
