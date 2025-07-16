@@ -13,6 +13,9 @@ COPY requirements.txt /code/
 RUN pip install --upgrade pip \
     && pip install -r requirements.txt
 
+# RUN python manage.py makemigrations --no input
+# RUN python manage.py migrate --no input
+
 # Copy project
 COPY . /code/
 

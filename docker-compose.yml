@@ -1,11 +1,25 @@
-version: "3.9"
+# version: "3.9"
 
 services:
-  web:
+  django:
     build: .
     container_name: to_do
+    command: >
+      sh -c "
+        python manage.py migrate --noinput &&
+        # python manage.py collectstatic --noinput &&
+        gunicorn to_do.wsgi:application --bind 0.0.0.0:8000
+      "
     expose:
       - "8000"
+    depends_on:
+      - postgres
+    environment:
+      - DB_NAME=todo
+      - DB_USER=admin
+      - DB_PASSWORD=admin
+      - DB_HOST=postgres
+      - DB_PORT=5432
     volumes:
       - .:/code
       - static_volume:/code/static
@@ -13,16 +27,30 @@ services:
 
   nginx:
     image: nginx:latest
-    container_name: nginx_proxy
+    container_name: nginx
     ports:
       - "80:80"
     depends_on:
-      - web
+      - django
     volumes:
       - ./nginx/nginx.conf:/etc/nginx/conf.d/default.conf
       - static_volume:/code/static
       - media_volume:/code/media
 
+  postgres:
+    image: postgres
+    container_name: db
+    restart: always
+    environment:
+      POSTGRES_USER: admin
+      POSTGRES_PASSWORD: admin
+      POSTGRES_DB: todo
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+
 volumes:
   static_volume:
   media_volume:
+  postgres_data:
